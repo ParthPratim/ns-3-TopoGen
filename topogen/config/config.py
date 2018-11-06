@@ -1,5 +1,5 @@
-
 ROOT_DIR = '.'
 MODELS_DIR = ROOT_DIR+'/models'
 WORKSPACES_DIR = ROOT_DIR+'/workspaces'
-
+STATIC_FOLDER =  '../../static'
+WEB_FOLDER = '../../web'
