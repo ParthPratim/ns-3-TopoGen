@@ -17,6 +17,7 @@ def fetch_all_workspaces():
 def create_workspace(name):
     if os.path.exists(os.path.join(workspace_dir,name)) == False and os.path.isdir(os.path.join(workspace_dir,name)) == False:
         os.mkdir(os.path.join(workspace_dir,name))
+        open(os.path.join(workspace_dir,name,name+'.nsproj'),'x').close()
         return (True,None)
     else:
         return (False,"0001")
