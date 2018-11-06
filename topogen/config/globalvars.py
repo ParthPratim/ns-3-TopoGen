@@ -1,0 +1,4 @@
+
+global ERROR_REGISTER
+
+ERROR_REGISTER = None
