@@ -17,7 +17,8 @@ def fetch_all_workspaces():
 def create_new_workspace():
     err_regs = globalvars.ERROR_REGISTER
     name = request.form['workspace_name']
-    status = manager.create_workspace(name)
+    author = request.form['author']
+    status = manager.create_workspace(name,author)
     if(status[0] == True):
         return "Success"
     else:

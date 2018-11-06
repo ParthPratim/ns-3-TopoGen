@@ -1,4 +1,5 @@
 from config import config
+from workspace import projconfig
 import os
 
 workspace_dir = config.WORKSPACES_DIR
@@ -14,10 +15,12 @@ def fetch_all_workspaces():
                 
     return detected
 
-def create_workspace(name):
+def create_workspace(name,author):
     if os.path.exists(os.path.join(workspace_dir,name)) == False and os.path.isdir(os.path.join(workspace_dir,name)) == False:
         os.mkdir(os.path.join(workspace_dir,name))
-        open(os.path.join(workspace_dir,name,name+'.nsproj'),'x').close()
+        cfile = open(os.path.join(workspace_dir,name,name+'.nsproj'),'x')
+        projconfig.generate_workspace_project_file(name,author,cfile=cfile)
+        cfile.close()
         return (True,None)
     else:
         return (False,"0001")
