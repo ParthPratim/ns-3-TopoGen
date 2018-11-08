@@ -23,4 +23,3 @@ def create_new_workspace():
         return "Success"
     else:
         return err_regs.lookup(status[1],compo_name)
-

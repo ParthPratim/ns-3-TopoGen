@@ -16,6 +16,8 @@ def fetch_all_workspaces():
     return detected
 
 def create_workspace(name,author):
+    name = name.strip()
+    name = name.split(' ')[0]
     if os.path.exists(os.path.join(workspace_dir,name)) == False and os.path.isdir(os.path.join(workspace_dir,name)) == False:
         os.mkdir(os.path.join(workspace_dir,name))
         cfile = open(os.path.join(workspace_dir,name,name+'.nsproj'),'x')
@@ -24,3 +26,4 @@ def create_workspace(name,author):
         return (True,None)
     else:
         return (False,"0001")
+        
