@@ -1,0 +1,132 @@
+.tray-icon{
+    width: 30px;
+    height: 30px;
+    border-radius: 100px;
+    background: lightgray;
+    display: inline-block;
+    vertical-align: top;
+    padding: 3px;
+    margin: 0px 3px 0px 3px; 
+}
+body{
+    margin: 0px;
+    padding: 0px;
+}
+
+.full-container{
+    max-width: 100%;
+    min-height: 90%;
+}
+
+.full-container #task-panes{
+    max-width: 100% !important;
+    min-height: 100% !important;
+}
+
+#scratchpad{
+    background: #fff;
+}
+
+.span-type{
+    display: inline-block !important;
+    vertical-align: top !important;
+}
+
+.child-header{
+    font-size: 13px;
+    color:#303030;
+}
+
+.child-header-text{
+    font-size: 15px;
+    color:#707070;
+}
+.util-wind-left{
+    margin-left: 5px;
+    background: #F8F8F8;
+    
+}
+
+.layer-item{
+    margin: 2px;
+    width: 100%;
+}
+
+.layer-item-icon{
+    display: inline-block;
+    vertical-align: middle;
+    width:25px;
+    height: 25px;
+    border-radius: 100px;
+    padding: 3px;
+}
+
+.layer-item-text{
+    font-size:13px;
+    margin-left: 5px;
+    text-transform: none !important;
+}
+
+.wind-name{
+    background: #707070;
+    font-size:14px;
+    color:#fff;
+    width: 100%;
+    text-align: center;
+}
+
+#model-desc{
+    overflow: auto;
+    overflow-x:hidden; 
+}
+
+.code-cmdargs{
+    width:100%;
+    padding:5px;
+    color: #fff;
+    background:#404040;
+    text-align:  center;
+}
+
+#scratchpad{
+    margin: 0px;
+    padding: 0px;
+}
+
+.regs-cmd-name{
+    display: inline-block !important;
+    vertical-align: top !important;
+    font-size:15px;
+    margin: 0px 5px;
+}
+
+.regs-cmd-name .cmd-type{
+    border: 1px solid #4885ed;
+    color: #4885ed;
+    padding: 3px;
+    box-shadow:0px 0px 2px 2px #4885ed;
+}
+
+.regs-cmd-name .cmd-var-name{
+    margin-left:5px;
+    text-transform: none;
+}
+
+#model-toolbox{
+    width:1005;
+    height: 200px;
+    border-radius:5px;
+    background: transparent;
+    padding: 3px;
+    line-height:  2.5;
+    font-size:14px;
+    visibility: hidden;
+}
+
+#model-toolbox .inpvarname{
+    display:inline;
+}
+
+#sub-controls{
+    background: #404040 !important;
+}

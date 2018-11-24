@@ -117,5 +117,3 @@ if __name__ == "__main__":
                     modulemap[module]["builtin_functions_or_methods"] = {element[0]:{"args":params}}
                      
     dump_module_data(modulemap)
-        
-    
