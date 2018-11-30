@@ -4,6 +4,7 @@ NEW_MODEL_LAYER = 1
 var components = []
 var component_element = {}
 var module_map = null
+var builtin_map = null
 function cmp(str1,str2){
     if(str1.localeCompare(str2) == 0){
         return true
@@ -21,6 +22,7 @@ $(document).ready(function () {
     $('#model-desc').height(h - (h4 + 10));
     var compo_index = 0;
     var two = new Two({ width: $('#scratchpad').width(), height: $('#scratchpad').height() }).appendTo(document.getElementById('scratchpad'));
+
     components.push({"model_type":"builtin__elements",
                      "model":"data_type",
                      "varname":"argc",
@@ -67,6 +69,13 @@ $(document).ready(function () {
         },
         dataType: "json"
     });
+    $.ajax({
+        url: "http://localhost:2018/topocreator/fetch-builtins",
+        success : function(data){
+            builtin_map = data
+        },
+        dataType: "json"
+    })
     
     function createComponent(shape,color_code,componame,varname,category){
         //circle 
@@ -145,7 +154,7 @@ $(document).ready(function () {
                         prepare_invoke = {
                             "attach_callback" : true,
                             "callback" : function(invoke_conf){
-
+                                
                             },
                             "args" : {
                                 "method" : method

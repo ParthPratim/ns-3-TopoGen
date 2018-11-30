@@ -103,3 +103,20 @@ strong.Xsubheader {
 .Xcontrols-hfdivide .list-group{
     text-transform: none;   
 }
+
+.Xcontrol-form{
+    text-align: center;
+}
+
+.Xcontrol-form input, .Xcontrol-form button {
+    text-align: left;
+    max-width: 60%;
+    margin: 5px 0px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+@font-face{
+    font-family:'Glyphicons Halflings';
+    src:url(../fonts/glyphicons-halflings-regular.eot);
+}
