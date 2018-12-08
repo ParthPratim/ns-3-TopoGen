@@ -239,7 +239,14 @@ function window__invoke_params(config){
 
                 attachinv_button.click(function(){
                     if(!$(this).hasClass('disabled')){
-                        config.callback()
+                        call_config = {}
+                        call_config.method = method.value
+                        $(list_group+' .list-group-item').each(function(){
+                            val = $(this).attr('data-select').trim()
+                            name = $(this).attr('data-name').trim()
+                            call_config[name] = val
+                        })
+                        config.callback(call_config)
                     }
                 })
 

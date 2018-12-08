@@ -1,10 +1,13 @@
 CIRCLE_SHAPE = "circle"
 RECT_SHAPE = "rect"
 NEW_MODEL_LAYER = 1
+NEW_FUNCT_LAYER = 2
 var components = []
 var component_element = {}
 var module_map = null
 var builtin_map = null
+var map_connector = []
+var line_connectors = []
 function cmp(str1,str2){
     if(str1.localeCompare(str2) == 0){
         return true
@@ -76,28 +79,36 @@ $(document).ready(function () {
         },
         dataType: "json"
     })
-    
+
     function createComponent(shape,color_code,componame,varname,category){
         //circle 
         var group = null;
         if(cmp(shape,CIRCLE_SHAPE)){
-            circle = two.makeCircle(x+15, y+15, 15)
+            abbr = ""
+            $.each(componame.split(' '),function(){
+                abbr += this[0]
+            })
+            rect_width = abbr.length * 10
+            circle = two.makeCircle(x+15, y+15, rect_width/2)
             circle.fill = color_code
             circle.stroke = "#404040"
-            orect = two.makeRectangle(x+5,y,140,35)
+            text = two.makeText(abbr, x+15, y+17)
+            text.fill = "#fff"
+            orect = two.makeRectangle(x+15,y+15,rect_width + 20,35)
             orect.fill = "transparent"
             orect.stroke = "#000"
             x+=5
             y+=30
-            group = two.makeGroup(circle,orect)
+            group = two.makeGroup(circle,text,orect)
         }
         else if(cmp(shape,RECT_SHAPE)){
-            rect = two.makeRectangle(x+5, y, 120, 20)
+            rect_width = componame.length * 10
+            rect = two.makeRectangle(x+5, y, rect_width, 20)
             rect.fill = color_code
             rect.stroke = "#404040"
             text = two.makeText(componame, x+5, y+2)
             text.fill = "#fff"
-            orect = two.makeRectangle(x+5,y,140,35)
+            orect = two.makeRectangle(x+5,y,rect_width+20,35)
             orect.fill = "transparent"
             orect.stroke = "transparent"
             x+=50
@@ -109,9 +120,90 @@ $(document).ready(function () {
 
         addActionLayer(NEW_MODEL_LAYER,varname,componame)
 
-        $(group._renderer.elem).mousedown(function(e){
+        addTitleToGroup(group._renderer.elem,componame)
+
+        $('#scratchpad').on('mousemove', function(e){
             
-            e = e || window.event;
+        $description.css({
+            left:  e.pageX - $('#scratchpad').position().left ,
+            top:   (e.pageY - $('#scratchpad').position().top)+30
+        });  
+        
+        });
+        $(group._renderer.elem).mousedown(function(e){
+            makeElementDraggable(e,group)
+        }).click(function(evt){
+            evt.preventDefault()
+            position = group.getBoundingClientRect()
+            $.each(component_element,function(varname,prop){
+                prop.svg_element.children[2].stroke = "transparent"
+            })
+            group.children[2].stroke = "#000"
+            two.update()
+            group_ren_elem = $(this)
+            $('#model-toolbox').css('visibility','visible');
+            $('#model-toolbox .invoke-method').off('click').click(function(evt){
+                evt.preventDefault()
+                win_config = {
+                    "attach_callback" : true,
+                    "callback" : function(method){
+                        prepare_invoke = {
+                            "attach_callback" : true,
+                            "callback" : function(call_config){
+                                // ADD ACTION LAYER FOR FUNCTION
+                                xcomponame = call_config.method
+                                var groupx = null
+                                abbr = ""
+                                $.each(xcomponame.split(' '),function(){
+                                    abbr += this[0]
+                                })
+                                rect_width = abbr.length * 10
+                                position = $(group_ren_elem.context.children[2]).position()
+                                position.left -=   $('#scratchpad').position().left
+                                position.top -= $('#scratchpad').position().top
+                                circle = two.makeCircle(position.left+10, position.top+10, rect_width/2+5)
+                                circle.fill = color_code
+                                circle.stroke = "#404040"
+                                text = two.makeText(abbr, position.left+10, position.top+12)
+                                text.fill = "#fff"
+                                orect = two.makeRectangle(position.left+15,position.top+15,rect_width + 20,35)
+                                orect.fill = "transparent"
+                                orect.stroke = "transparent"
+                                groupx = two.makeGroup(circle,text,orect)
+                                two.update()
+                                addActionLayer(NEW_FUNCT_LAYER,varname,xcomponame)
+
+                                addTitleToGroup(groupx._renderer.elem,xcomponame)
+
+                                $(groupx._renderer.elem).mousedown(function(e){
+                                    makeElementDraggable(e,groupx)
+                                })
+                                map_connector.push({from : groupx.id , to : group_ren_elem.context.children[0]})
+                                updateLineConnectors()
+                            },
+                            "args" : {
+                                "method" : method
+                            }
+                        }
+                        
+                        WindowTemplate(INVOKE_PARAMS_WINDOW,prepare_invoke)
+                    },
+                    "args" : {
+                        "model" : components[component_element[varname].compo_index].model,
+                        "varname" : varname,
+                        "category" : category
+                    }
+                }
+                WindowTemplate(FUNCTION_LIST_WINDOW,win_config)
+            })
+            loadInstanceDetails(varname)
+        })
+
+        return group
+    }
+
+    function makeElementDraggable(e,group){
+        e = e || window.event;
             e.preventDefault();
             pos3 = e.clientX;
             pos4 = e.clientY;
@@ -134,48 +226,39 @@ $(document).ready(function () {
                 pos4 = e.clientY;
                 group.translation.x -=  pos1
                 group.translation.y -=  pos2
-                console.log(group.translation.y)
                 two.update()
+                updateLineConnectors()
             }
-        }).click(function(evt){
-            evt.preventDefault()
-            position = group.getBoundingClientRect()
-            $.each(component_element,function(varname,prop){
-                prop.svg_element.children[2].stroke = "transparent"
-            })
-            group.children[2].stroke = "#000"
-            two.update()
-            $('#model-toolbox').css('visibility','visible');
-            $('#model-toolbox .invoke-method').off('click').click(function(evt){
-                evt.preventDefault()
-                win_config = {
-                    "attach_callback" : true,
-                    "callback" : function(method){
-                        prepare_invoke = {
-                            "attach_callback" : true,
-                            "callback" : function(invoke_conf){
-                                
-                            },
-                            "args" : {
-                                "method" : method
-                            }
-                        }
-                        
-                        WindowTemplate(INVOKE_PARAMS_WINDOW,prepare_invoke)
-                    },
-                    "args" : {
-                        "model" : components[component_element[varname].compo_index].model,
-                        "varname" : varname,
-                        "category" : category
-                    }
-                }
-                WindowTemplate(FUNCTION_LIST_WINDOW,win_config)
-            })
-            loadInstanceDetails(varname)
-        })
-
-        return group
     }
+    function updateLineConnectors(){
+        $.each(line_connectors,function(){
+            this.remove()
+        })
+        line_connectors = []
+        $.each(map_connector,function(){
+            from = this.from
+            to = this.to
+            p1 = $('#'+from)[0].getBoundingClientRect()
+            p2 = $(to)[0].getBoundingClientRect()
+            console.log(p1)
+            console.log(p2)
+            sp = $('#scratchpad').offset()
+            console.log(sp)
+            x1 = Math.abs(p1.x+p1.width/2 - sp.left)
+            y1 = Math.abs(p1.y-15 - sp.top)
+            x2 = Math.abs(p2.x+p2.width/2 - sp.left)
+            y2 = Math.abs(p2.y+3 - sp.top)
+            x1 -= 5
+            y1 -= 10
+            y2-= 20
+            line = two.makeLine(x1,y1,x2,y2)
+            line.stroke = "red"
+            two.update()
+            line_connectors.push(line)
+            //ADD CONNECTOR 
+        })
+    }
+
     function loadModel(){
         target = $(this).attr("class-target").split('/')
         category = target[0]
@@ -208,16 +291,39 @@ $(document).ready(function () {
     }
 
     function addActionLayer(type,varname,componame,){
-        if(type == NEW_MODEL_LAYER){
-            markup = '<div class="layer-item">\
-            <img class="layer-item-icon" src="/static/icons/layer.png">\
+        img_icon = ""
+        switch(type){
+            case NEW_MODEL_LAYER:{
+                img_icon = "/static/icons/layer.png";
+                break;
+            }
+            case NEW_FUNCT_LAYER:{
+                img_icon = "/static/icons/func.png";
+                break;
+            }
+        }
+        markup = '<div class="layer-item">\
+            <img class="layer-item-icon" src="'+img_icon+'">\
             <span class="layer-item-text">'+varname+" - "+componame+
             '</span>\
             </div>'
-            $('#layers-opt .layer-wind').append($(markup))
-        }
+        $('#layers-opt .layer-wind').append($(markup))
     }
     //createComponent(RECT_SHAPE,"Command Line")
     //createComponent(RECT_SHAPE,"Command Line 2")
 })
 
+
+function addTitleToGroup(element,summary_text){
+    $($(element).context.children[2]).attr({ 'class':'svg-compo-tooltip' } )
+    $($(element).context.children[2]).attr( { 'title':summary_text } )
+
+    $description = $(".svg-tooltip");
+    $('.svg-compo-tooltip').hover(function() {
+    $(this).attr("class", "svg-compo-tooltip heyo");
+    $description.addClass('active');
+    $description.html($(this).attr('title'));
+    }, function() {
+    $description.removeClass('active');
+    });
+}
