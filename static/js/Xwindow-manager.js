@@ -241,10 +241,11 @@ function window__invoke_params(config){
                     if(!$(this).hasClass('disabled')){
                         call_config = {}
                         call_config.method = method.value
+                        call_config.callargs = {}
                         $(list_group+' .list-group-item').each(function(){
                             val = $(this).attr('data-select').trim()
                             name = $(this).attr('data-name').trim()
-                            call_config[name] = val
+                            call_config.callargs[name] = val
                         })
                         config.callback(call_config)
                     }

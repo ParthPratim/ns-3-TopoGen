@@ -1,7 +1,10 @@
+#top-navbar{
+    height:60px;
+}
+
 .tray-icon{
     width: 30px;
     height: 30px;
-    border-radius: 100px;
     background: lightgray;
     display: inline-block;
     vertical-align: top;
@@ -11,6 +14,7 @@
 body{
     margin: 0px;
     padding: 0px;
+    overflow: hidden;
 }
 
 .full-container{
@@ -57,7 +61,6 @@ body{
     vertical-align: middle;
     width:25px;
     height: 25px;
-    border-radius: 100px;
     padding: 3px;
 }
 
@@ -177,3 +180,20 @@ body{
     border-right: 10px solid transparent;
     border-bottom: 10px solid #303030;
   }
+
+#icon-tray .model-name-inp{
+    background: transparent;
+    border: 0px 0px 2px 0px;
+    width:20%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.navbar-nav{
+    display: inline-block;
+    vertical-align: top;
+}
+
+.navbar-nav li.nav-item{
+    display: inline;
+}
