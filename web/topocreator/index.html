@@ -29,27 +29,13 @@
     </div>
   </nav>
   <nav id="icon-tray" class="navbar navbar-expand-sm bg-light border-bottom-0 row">
-
-    <!-- Links -->
       <div class="col">
           <input name="modelname" type="text" class="form-control form-control-sm model-name-inp" placeholder="Model Name">
-          <ul class="navbar-nav">
-              <li class="nav-item">
-                <div class="tray-icon">
-                </div>
-              </li>
-              <li class="nav-item">
-                    <div class="tray-icon">
-                        </div>
-              </li>
-              <li class="nav-item">
-                    <div class="tray-icon">
-                        </div>
-              </li>
-            </ul>
+          <button type="button" id="addNode" class-target="core/NodeContainer" class="btn btn-outline-primary btn-sm">Add Node</button>
+          <button type="button" id="addVariable" class="btn btn-outline-primary btn-sm">Add Variable</button>
       </div>
       <div class="col" style="text-align: right">
-        <button type="button" class="btn btn-success" >Finalize Model</button>
+        <button id="finalize-model-creation" type="button" class="btn btn-success" >Finalize Model</button>
       </div>
   </nav>
   <div id="work-pane" class="full-container">
@@ -152,6 +138,7 @@
   <script src="/static/js/bootstrap.js"  crossorigin="anonymous"></script>
   <script src="/static/js/two.js"  crossorigin="anonymous"></script>
   <script src="/static/js/topocreator.js"  crossorigin="anonymous"></script>
+  <script src="/static/js/nstutils.js"  crossorigin="anonymous"></script>
   <script src="/static/js/Xwindow-manager.js"  crossorigin="anonymous"></script>
 </body>
 

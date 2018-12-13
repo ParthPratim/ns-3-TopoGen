@@ -30,13 +30,15 @@ $(document).ready(function () {
         "model_type": "builtin__elements",
         "model": "data_type",
         "varname": "argc",
-        "type": "int"
+        "type": "int",
+        "value" : ""
     })
     components.push({
         "model_type": "builtin__elements",
         "model": "data_type",
         "varname": "argv",
-        "type": "char* []"
+        "type": "char* []",
+        "value" : ""
     })
     registerAllWindowTemplates()
     $.ajax({
@@ -57,10 +59,10 @@ $(document).ready(function () {
 
                 $.each(class_data, function () {
 
-                    class_name = this["__Model__Configuration__"]["disp"]
+                    class_name = this.__Model__Configuration__.disp
 
                     markup += '<div class="layer-item model-item" style="margin-left: 7px;cursor:pointer" class-target="' +
-                        model + '/' + this["__Model__Configuration__"]["model"] + '">\
+                        model + '/' + this.__Model__Configuration__.model + '">\
                     <img class="layer-item-icon" src="/static/icons/class.png">\
                     <span class="layer-item-text">'+ class_name + '</span></div>'
 
@@ -84,6 +86,41 @@ $(document).ready(function () {
         dataType: "json"
     })
 
+    $('#addNode').click(loadModel)
+    $('#addVariable').click(function(){
+        WindowTemplate(ADD_AVARIABLE_WINDOW,{
+            attach_callback : true,
+            callback : function(add_var_conf){
+                var group_a = null;
+                var_name = add_var_conf.varname
+                rect_width = var_name.length * 10
+                rect = two.makeRectangle(x + 5, y, rect_width, 20)
+                rect.fill = "#000"
+                rect.stroke = "#404040"
+                text = two.makeText(var_name, x + 5, y + 2)
+                text.fill = "#fff"
+                orect = two.makeRectangle(x + 5, y, rect_width + 20, 35)
+                orect.fill = "transparent"
+                orect.stroke = "transparent"
+                group_a = two.makeGroup(rect,text,orect)
+                two.update()
+                x += 50
+                y += 20
+                addTitleToGroup(group_a._renderer.elem, var_name+" = "+add_var_conf.varvalue)
+                $('#scratchpad').on('mousemove', function (e) {
+
+                    $description.css({
+                        left: e.pageX - $('#scratchpad').position().left,
+                        top: (e.pageY - $('#scratchpad').position().top) + 30
+                    });
+        
+                });
+                $(group_a._renderer.elem).mousedown(function (e) {
+                    makeElementDraggable(e, group_a)
+                })
+            }
+        })
+    })
     function createComponent(shape, color_code, componame, varname, category) {
         //circle 
         var group = null;
@@ -177,13 +214,11 @@ $(document).ready(function () {
                                 two.update()
                                 addActionLayer(NEW_FUNCT_LAYER, varname, xcomponame)
                                 addTitleToGroup(groupx._renderer.elem, xcomponame)
-                                $.each(components, function () {
-                                    if (cmp(this.varname, varname)) {
-                                        this.methodcalls.push({
-                                            "method": call_config.method,
-                                            "args": call_config.callargs
-                                        })
-                                    }
+                                components.push({
+                                    "model_type": "method_call",
+                                    "classvar": varname,
+                                    "method": call_config.method,
+                                    "args": call_config.callargs
                                 })
                                 $(groupx._renderer.elem).mousedown(function (e) {
                                     makeElementDraggable(e, groupx)
@@ -287,8 +322,7 @@ $(document).ready(function () {
                     "model_type": category,
                     "model": model,
                     "varname": varname,
-                    "type": definition["model"],
-                    "method_calls" : []
+                    "type": definition["model"]
                 })
 
                 component_element[varname] = { "compo_index": components.length - 1, "svg_element": svg_element };
@@ -324,6 +358,12 @@ $(document).ready(function () {
     }
     //createComponent(RECT_SHAPE,"Command Line")
     //createComponent(RECT_SHAPE,"Command Line 2")
+
+    $('#finalize-model-creation').click(function () {
+        createNSTFile("Topo1","Parth Pratim",components,function(response){
+            console.log(response)
+        })
+    })
 })
 
 

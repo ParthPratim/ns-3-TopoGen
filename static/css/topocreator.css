@@ -164,6 +164,7 @@ body{
     -webkit-transform: translateX(-50%);
     transform: translateX(-50%);
     display: none;
+    text-transform: none;
   }
   .svg-tooltip.active {
     display: block;
@@ -196,4 +197,9 @@ body{
 
 .navbar-nav li.nav-item{
     display: inline;
+}
+
+.half-size-input{
+    width: 48%;
+    margin: 0px 3px;
 }

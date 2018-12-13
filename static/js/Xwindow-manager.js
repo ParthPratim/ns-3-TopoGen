@@ -4,6 +4,7 @@ WIN_INDEX = 0
 MINIMIZED_WINDOWS = {}
 FUNCTION_LIST_WINDOW = "0001"
 INVOKE_PARAMS_WINDOW = "0002"
+ADD_AVARIABLE_WINDOW = "0003"
 window_templates = {}
 
 function initXWindow(winname,wintitle,winelem,config) {
@@ -208,7 +209,7 @@ function window__invoke_params(config){
                     inscopevars_list[variable] = []
                     f_dtype[variable] = data_type
                     $.each(components,function(){
-                        if(cmp(data_type,this.type)){
+                        if(cmp(data_type,this.type) || cmp(data_type.trim().split(" ")[0],"T")){
                             inscopevars_list[variable].push(this.varname)
                         }
                     })
@@ -247,6 +248,7 @@ function window__invoke_params(config){
                             name = $(this).attr('data-name').trim()
                             call_config.callargs[name] = val
                         })
+                        closeWindow(winname)
                         config.callback(call_config)
                     }
                 })
@@ -422,6 +424,77 @@ function window__invoke_params(config){
         })
     }
 }
+function window__add_avariable(config){
+    if(config.attach_callback == true){
+        if(config.callback){
+            return {"title":"Attach Parameters and Invoke Method","renderer":render}
+        }
+    }
+    function render(r_space,config,winname,wintitle){
+        d_types=["std::string","int","double","boolean"]
+        markup = generate_unclosed_window(winname,wintitle,"50%")
+        var_select_id = winname+"__var_select"
+        var_add_var_btn = winname+"__var_addbtn"
+        markup +=  '<div class="Xcontrols-container row">\
+                        <select class="form-control" id="'+var_select_id+'" style="margin:3px 0px;">\
+                            <option value="__nodtype__">Select a Type</option>\
+                            <option value="std::string">string</option>\
+                            <option value="int">Integer</option>\
+                            <option value="double">Float/Double</option>\
+                            <option value="boolean">Boolean</option>\
+                        </select>\
+                        <input name="varname" type="text" class="form-control form-control-sm half-size-input" placeholder="Variable Name">\
+                         = \
+                        <input name="varvalue" type="text" class="form-control form-control-sm half-size-input" placeholder="Variable Value(optional)">\
+                        <div style="width:100%; text-align:center"> \
+                        <br><button type="button" id="'+var_add_var_btn+'" class="btn btn-outline-secondary">Add Variable</button>\
+                        </div>\
+                    </div>'
+        r_space.append($(markup))
+        $('#'+var_add_var_btn).click(function(){
+            seleced_val = $('#'+var_select_id).val()
+            var_name = $('#'+winname+' input[name=varname]').val().trim()
+            var_val = $('#'+winname+' input[name=varvalue]').val().trim()
+            if(!cmp(seleced_val,"__nodtype__")){
+                if(var_name.indexOf(' ') < 0){
+                    do_append = true
+                    $.each(components,function(){
+                        if(!cmp(this.model_type,"method_call")){
+                            if(cmp(this.varname,var_name)){
+                                do_append = false;
+                                return 
+                            }
+                        }
+                    })
+                    if(do_append){
+                        components.push({
+                            model_type : "builtin__elements",
+                            model : "data_type",
+                            varname : var_name,
+                            type : seleced_val,
+                            value :var_val
+                        })
+                        closeWindow(winname)
+                        config.callback({
+                            varname : var_name,
+                            varvalue : var_val,
+                            datatype : seleced_val
+                        })
+                    }
+                    else{
+                        alert("Variable name already taken")
+                    }
+                }
+                else{
+                    alert("Variable name is invalid !")
+                }
+            }
+            else{
+                alert("Select a valid in-built data type")
+            }
+        })
+    }
+}
 function generate_unclosed_window(winname,wintitle,min_width){
     markup = '<div id="'+winname+'" class="Xwindow" style="min-width:'+min_width+'">\
     <div class="Xtitle">'+wintitle+
@@ -433,4 +506,5 @@ function generate_unclosed_window(winname,wintitle,min_width){
 function registerAllWindowTemplates(){
     register_template(FUNCTION_LIST_WINDOW,window__function_list);
     register_template(INVOKE_PARAMS_WINDOW,window__invoke_params);
+    register_template(ADD_AVARIABLE_WINDOW,window__add_avariable);
 }
