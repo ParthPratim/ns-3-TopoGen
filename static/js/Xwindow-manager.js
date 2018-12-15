@@ -158,12 +158,12 @@ function window__function_list(config){
 function window__invoke_params(config){
     if(config.attach_callback == true){
         if(config.callback){
-            return {"title":"Attach Parameters and Invoke Method","renderer":render}
+            return {"title":"Attach Parameters and Invoke Method - "+config.args.method.value,"renderer":render}
         }
     }
     function render(r_space,config,winname,wintitle){
-        d_types=["std::string","int","double","boolean"]
-        markup = generate_unclosed_window(winname,wintitle,"60%")
+        d_types=["std::string","int","double","bool"]
+        markup = generate_unclosed_window(winname,wintitle,"65%")
         
         method = config.args.method
         parent_config = method.config.args
@@ -198,7 +198,19 @@ function window__invoke_params(config){
         $.each(module_map[parent_config.category],function(){
             model_config = this.__Model__Configuration__
             if(cmp(model_config.model,parent_config.model)){
-                m_args = model_config.stubs[method.value].args[0]
+                m_args = model_config.stubs[method.value].args
+                stop_exec = false
+                if(m_args.length == 0){
+                    closeWindow(winname)
+                    config.callback({
+                        method : method.value,
+                        callargs : {
+
+                        }
+                    })
+                    return 
+                }
+                m_args = m_args[0]
                 list_group = '#'+winname+' .Xcontrols-hfdivide:eq(0) .list-group '
                 select_panel = '#'+winname+' .Xcontrols-hfdivide:eq(1)'
                 inscopevars_list = {}
@@ -246,7 +258,10 @@ function window__invoke_params(config){
                         $(list_group+' .list-group-item').each(function(){
                             val = $(this).attr('data-select').trim()
                             name = $(this).attr('data-name').trim()
-                            call_config.callargs[name] = val
+                            call_config.callargs[name] = {
+                                "value" : val,
+                                "type" : f_dtype[name]
+                            }
                         })
                         closeWindow(winname)
                         config.callback(call_config)
@@ -267,7 +282,7 @@ function window__invoke_params(config){
                                 <option value="std::string">string</option>\
                                 <option value="int">Integer</option>\
                                 <option value="double">Float/Double</option>\
-                                <option value="boolean">Boolean</option>\
+                                <option value="bool">Boolean</option>\
                                 </select>\
                             <input type="text" class="form-control" id="'+inp_id+'">\
                             <button  class="btn btn-success" type="submit">Set Value</button>\
@@ -323,7 +338,9 @@ function window__invoke_params(config){
                         }
                     })
                     bm_c += '</select></div><button type="button" class="btn btn-primary">Finalize</button>'
-                    $(builtin_vars).html("").append(bm_c)
+                    $(builtin_vars).unbind("change")
+                    $(builtin_vars).html(" ")
+                    $(builtin_vars).append(bm_c)
                     $(builtin_vars).on('change','select',function(){
                         chosen = $(this).val()
                         info = null
@@ -355,21 +372,26 @@ function window__invoke_params(config){
                             $(builtin_vars+' .form-group').append(sub_select)
                         }
                         else{
+                            console.log("ADDING AN INPUT FIELD")
                             inp_field = '<input type="text" class="form-control" id="'+id+'__value'+'"></input>'
                             $(this).parent().append($(inp_field))
                         }
                     })
                     
                     $(builtin_vars+' button').click(function(){
-                        fgs = $(builtin_vars+' .form-group .sub-select')
+                        fgs = builtin_vars+' .form-group .sub-select'
                         master = $('#'+select_id).val()
                         bi_value = "built_in@"
                         if(!cmp(master,"__nodtype__")){
                             bi_value += master
-                            fgs.find('select').each(function(index){
+                            console.log($(fgs))
+                            $(fgs).find('select').each(function(index){
                                 bi_value +=  "."+$(this).val()
-                                if(index == fgs.length-1){
-                                    bi_value += "{"+$(this).parent().find('input').val()+"}"
+                            })
+                            last_inp = $(builtin_vars+' .form-group input')
+                            last_inp.each(function(index){
+                                if(index == last_inp.length-1){
+                                    bi_value += "{"+$(this).val()+"}"
                                 }
                             })
                             $(lg).attr('data-select',bi_value)
@@ -384,13 +406,12 @@ function window__invoke_params(config){
                             m_str = parts[1].substring(0,fb).split('.')
                             m_len = m_str.length
                             $('#'+select_id).val(m_str[0]).change()
+                            last_sel = $('#'+select_id).parent()
                             for(j = 1 ; j < m_len ;j++){
                                 last_sel = $('#'+select_id).parent().find('.sub-select:last')
                                 last_sel.find('select').val(m_str[j]).change()
-                                if(j == m_len-1){
-                                    last_sel.find('input').val(value)
-                                }
                             }
+                            last_sel.find('input').val(value)
                         }
                     }
 
@@ -441,7 +462,7 @@ function window__add_avariable(config){
                             <option value="std::string">string</option>\
                             <option value="int">Integer</option>\
                             <option value="double">Float/Double</option>\
-                            <option value="boolean">Boolean</option>\
+                            <option value="bool">Boolean</option>\
                         </select>\
                         <input name="varname" type="text" class="form-control form-control-sm half-size-input" placeholder="Variable Name">\
                          = \

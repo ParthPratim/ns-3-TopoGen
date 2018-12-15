@@ -1,4 +1,5 @@
 from models import modelsmap
+from nst import gencc
 import datetime
 
 # NST = (N)S-3 (S)IMULATION (T)OPOLOGY 
@@ -28,7 +29,10 @@ def generateNST(mname,mauthor,mcomponents):
                                     if dependency not in nst["dependencies"]:
                                         nst["dependencies"].append(dependency)
     
-    return nst
+    ccgen = gencc.CCcode("first.cc")
+    ccgen.generate_code(nst)
+    return ccgen.get_generated_code()
+    # retun nst
             
 
             

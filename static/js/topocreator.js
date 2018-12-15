@@ -317,16 +317,34 @@ $(document).ready(function () {
                 color = definition["styles"]["color_code"]
                 disp = definition["disp"]
                 varname = "nst_temp" + compo_index
-                svg_element = createComponent(shape, color, disp, varname, category)
-                components.push({
-                    "model_type": category,
-                    "model": model,
-                    "varname": varname,
-                    "type": definition["model"]
-                })
-
-                component_element[varname] = { "compo_index": components.length - 1, "svg_element": svg_element };
-                compo_index++;
+                prepare_invoke = {
+                    attach_callback : true,
+                    "callback" : function(call_config){
+                        svg_element = createComponent(shape, color, disp, varname, category)
+                        components.push({
+                            "model_type": category,
+                            "model": model,
+                            "varname": varname,
+                            "type": definition["model"],
+                            "args" : call_config.callargs
+                        })
+                        component_element[varname] = { "compo_index": components.length - 1, "svg_element": svg_element };
+                        compo_index++;
+                    },
+                    args: {
+                        method: {
+                            config : {
+                                args: {
+                                    model: definition["model"],
+                                    varname: varname,
+                                    category: category
+                                }
+                            },
+                            value : "__init__"
+                        }
+                    }
+                }
+                WindowTemplate(INVOKE_PARAMS_WINDOW, prepare_invoke)
             }
         })
     }

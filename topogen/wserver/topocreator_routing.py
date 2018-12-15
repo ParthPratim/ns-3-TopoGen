@@ -1,6 +1,6 @@
 from flask import Blueprint , render_template
 from workspace import manager
-from config import globalvars
+from config import globalvars, bultins
 from models import modelsmap
 import json
 
@@ -17,30 +17,6 @@ def fetch_model_maps():
 
 @topocreator.route('/fetch-builtins')
 def fetch_builtins():
-    b_map  = {"StringValue" : {
-        "returns" : "int",
-        "args" : [
-            {
-                "value" : "std::string"
-            }
-        ]
-    }, "TimeValue" : {
-        "returns" : "AttributeValue",
-        "args" : [
-            {
-                "value" : "Time"
-            }
-        ]
-    }, "Seconds" : {
-        "returns" : "Time",
-        "args" : [
-            {
-                "value" : "double"
-            },
-            {
-                "value" : "int"
-            }
-        ]
-    }}
+    b_map  = bultins.fetch_builtins()
 
     return json.dumps(b_map)

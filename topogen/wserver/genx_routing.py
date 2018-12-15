@@ -9,4 +9,4 @@ genx = Blueprint('generator',__name__)
 def gen_nst():
     minfo =  json.loads(request.form["topo_info"])
     nst_data = gennst.generateNST(minfo["mname"],minfo["mauthor"],minfo["mcomponents"])
-    return json.dumps(nst_data)
+    return nst_data
