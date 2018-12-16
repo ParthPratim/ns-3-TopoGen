@@ -3,12 +3,25 @@ from models import modelsmap
 class PYcode:
     py_code = ""
     code_components = {}
+    cc_data_types = ["std::string","int","double","bool"]
     model_class_map = modelsmap.generate_map_withclasses()
+    cmd_vars = []
+    cmd_addedvars = []
     def __init__(self,cc_file_name):
         pass
     
     def generate_code(self,components):
         self.code_components = components
+        self.add_file_mode()
+        self.add_license()
+        self.import_dependencies()
+        for component in components["components"]:
+            if self.is_variable_components(component):
+                self.define_variable(component)
+            elif self.is_method_call(component):
+                self.call_method(component)
+            else:
+                self.create_class_object(component)
     
     def add_file_mode(self):
         self.append_code("# -*-  Mode: Python; -*-")
@@ -32,7 +45,8 @@ class PYcode:
         # #  * Ported to Python by Mohit P. Tahiliani\n \
         # #  */")
     
-    def import_dependencies(self,dependencies):
+    def import_dependencies(self):
+        dependencies = self.code_components["dependencies"]["py"]
         self.break_line()
         for dependency in dependencies:
             d_parts = dependency.split('::')
@@ -43,10 +57,14 @@ class PYcode:
                 self.append_code('import '+dependency)
 
             self.break_line()
+
+        self.append_code("import sys")
     
     def create_class_object(self,component):
         self.break_line()
         m_name = component["model"]
+        if m_name == "CommandLine":
+            self.cmd_vars.append(component["varname"])
         for m_base , b_info in self.model_class_map.items():
             stop_lookup = False
             for m_info in b_info:
@@ -74,8 +92,34 @@ class PYcode:
         method = component["method"]
         class_var = component["classvar"]
         args = component["args"]
-        if method == "AddValue":
-            
+        self.break_line()
+        is_cmd_var = False
+        if class_var in self.cmd_vars:
+            is_cmd_var = True
+            if method == "AddValue":
+                tval = args.pop("value",None)["value"]
+                argval = tval[tval.index('@')+1:]
+                if argval not in self.cmd_addedvars:
+                    self.cmd_addedvars.append(argval)
+                self.append_code(class_var+"."+argval+' = ' + argval)
+                self.break_line()
+            elif method == "Parse" :
+                tval =  args["argv"]["value"]
+                argval = tval[tval.index('@')+1:]
+                argtype = tval[:tval.index('@')]
+                if argtype == "in_scope":
+                    if argval == "argv":
+                        args["argv"]["value"] = "in_scope@sys.argv"
+
+                del args["args"]
+        self.append_code(component["classvar"]+"."+component["method"])
+        self.append_method_params(args)
+        if is_cmd_var and method == "Parse":
+            self.break_line()
+            for addedvar in self.cmd_addedvars:
+                self.append_code(addedvar+" = "+class_var+"."+addedvar)
+                self.break_line()
+
 
     def append_method_params(self,arglist):
         self.append_code(" ( ")
@@ -119,7 +163,7 @@ class PYcode:
             if arg_index < arg_len-1:
                 self.append_code(", ")
         
-        self.append_code(" ) "+self.END_CODE)
+        self.append_code(" ) ")
     
     def is_ns3class_component(self,component):
         if not ( self.is_variable_components(component) or self.is_method_call(component) ):
@@ -145,3 +189,5 @@ class PYcode:
     def break_line(self):
         self.append_code('\n')
     
+    def get_generated_code(self):
+        return self.py_code

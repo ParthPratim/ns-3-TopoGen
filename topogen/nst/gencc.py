@@ -63,7 +63,10 @@ class CCcode:
         self.break_line()
         self.append_code(component["type"]+" "+component["varname"] + " ")
         if component["value"] != "":
-            self.append_code(" = " + component["value"])
+            if component["type"] in self.cc_data_types[1:]:
+                self.append_code(" = \"" + component["value"]+"\"")
+            else:
+                self.append_code(" = " + component["value"])
         
         self.append_code(self.END_CODE)
     
@@ -134,10 +137,10 @@ class CCcode:
         return False
 
     def add_headers(self):
-        dependencies = self.code_components["dependencies"]
+        dependencies = self.code_components["dependencies"]["cpp"]
         self.add_ccheader("bits/stdc++.h")
         for dependency in dependencies:
-            self.add_ns3header("ns3/"+dependency+"-module.h")
+            self.add_ns3header("ns3/"+dependency+".h")
     
     def add_ccheader(self,header_file):
         self.break_line()
